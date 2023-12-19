@@ -1,0 +1,63 @@
+namespace: ChatApplication
+
+client:
+  defines: runnable
+  metadata:
+    name: client
+    description: React front-end application
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    client:
+      image: env-4347.registry.local/client:main-8fd5064
+      build: .
+      dockerfile: Dockerfile.client
+  services:
+    http:
+      description: Port for serving the React front-end application
+      container: client
+      port: 80
+      host-port: 80
+      publish: true
+      protocol: tcp
+  connections:
+    client-to-server:
+      target: ChatApplication/server
+      service: server-port
+      optional: true
+      description: >-
+        The client service connects to the server service for backend
+        communication.
+  variables: {}
+
+server:
+  defines: runnable
+  metadata:
+    name: server
+    description: Node.js back-end application for real-time communication
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    server:
+      image: env-4347.registry.local/server:main-8fd5064
+      build: .
+      dockerfile: Dockerfile.server
+  services:
+    server-port:
+      description: Port for HTTP and WebSocket connections
+      container: server
+      port: $port
+      host-port: $port
+      publish: true
+      protocol: tcp
+  connections: {}
+  variables:
+    port:
+      env: PORT
+      type: int
+      value: 5000
+      description: The port on which the server listens
+
+stack:
+  defines: group
+  members:
+    - ChatApplication/client
+    - ChatApplication/server
