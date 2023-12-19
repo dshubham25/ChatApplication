@@ -1,0 +1,28 @@
+# Use an official Node runtime as a parent image
+FROM node:14-alpine
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
+COPY client/package*.json ./
+
+# Install any needed packages
+RUN npm install
+
+# Bundle app source
+COPY client/ .
+
+# Build the app
+RUN npm run build
+
+# Install serve to serve the production build
+RUN npm install -g serve
+
+# Inform Docker about the port we will run on
+EXPOSE 80
+
+# The command to run our app
+CMD ["serve", "-s", "build", "-l", "80"]
